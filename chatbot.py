@@ -3,9 +3,15 @@ from dotenv import load_dotenv
 from textblob import TextBlob
 from spotify_integration import obter_spotify_client, recomendar_musica, criar_playlist, adicionar_musicas_na_playlist
 
+<<<<<<< HEAD
 load_dotenv()
 
 sp = obter_spotify_client()
+=======
+client_id = 'SEU_CLIENT_ID'  
+client_secret = 'SEU_CLIENT_SECRET'  
+
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))  
 
 historico = {}
 musicas_recomendadas = {}
@@ -47,5 +53,9 @@ def start_chat():
     
     print(f"\n🎧 Até logo, {nome}! Espero que essa playlist melhore seu dia! 😊")
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     start_chat()
+=======
+start_chat()  
+>>>>>>> 0e8c3e92416ab473f1756a4f74574aad1d884de1
