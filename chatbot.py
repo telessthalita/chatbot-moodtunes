@@ -1,11 +1,9 @@
 import spotipy  
 from spotipy.oauth2 import SpotifyClientCredentials  
 
-# Suas credenciais (substitua com as suas)  
 client_id = 'SEU_CLIENT_ID'  
 client_secret = 'SEU_CLIENT_SECRET'  
 
-# Conectar ao Spotify  
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))  
 
 def recomendar_musica(humor):  
