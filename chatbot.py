@@ -1,29 +1,51 @@
-import spotipy  
-from spotipy.oauth2 import SpotifyClientCredentials  
+import os
+from dotenv import load_dotenv
+from textblob import TextBlob
+from spotify_integration import obter_spotify_client, recomendar_musica, criar_playlist, adicionar_musicas_na_playlist
 
-# Suas credenciais (substitua com as suas)  
-client_id = 'SEU_CLIENT_ID'  
-client_secret = 'SEU_CLIENT_SECRET'  
+load_dotenv()
 
-# Conectar ao Spotify  
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))  
+sp = obter_spotify_client()
 
-def recomendar_musica(humor):  
-    if humor == 'feliz':  
-        resultados = sp.search(q='mood:happy', limit=5, type='track')  
-    elif humor == 'triste':  
-        resultados = sp.search(q='mood:sad', limit=5, type='track')  
-    else:  
-        resultados = sp.search(q='mood:calm', limit=1, type='track')  
+historico = {}
+musicas_recomendadas = {}
 
-    musica = resultados['tracks']['items'][0]['name']  
-    artista = resultados['tracks']['items'][0]['artists'][0]['name']  
-    return f"{musica} - {artista}"  
+def analisar_sentimento(mensagem):
+    blob = TextBlob(mensagem)
+    sentimento = blob.sentiment.polarity  
+    if sentimento > 0.3:  
+        return 'feliz'
+    elif sentimento < -0.3: 
+        return 'triste'
+    
+    palavras_felizes = ["feliz", "animado", "empolgado", "maravilhoso", "muito bem"]
+    palavras_tristes = ["triste", "deprimido", "ansioso", "frustrado", "sofrendo", "isolado"]
+
+    for palavra in palavras_felizes:
+        if palavra in mensagem.lower():
+            return 'feliz'
+    for palavra in palavras_tristes:
+        if palavra in mensagem.lower():
+            return 'triste'
+    
+    return 'neutro'
+
 
 def start_chat():  
-    nome = input("Chatbot: Oi! Qual é o seu nome? ")  
-    humor = input("Chatbot: Como você está se sentindo hoje (feliz, triste, neutro)? ")  
-    musica = recomendar_musica(humor)  
-    print(f"Chatbot: Recomendo esta música para você: {musica}")  
+    print("\n🎵 MoodTunes v2.0")
+    nome = input("\nMoodTunes: Oi! Qual é o seu nome? ")  
+    mensagem = input(f"\n{nome}, como você está se sentindo hoje? ")
+    humor = analisar_sentimento(mensagem)
+    print(f"\nMoodTunes: Parece que você está {humor} hoje, {nome}. Vou preparar uma playlist para você!")
+    
+    recomendacoes = recomendar_musica(sp, humor, nome)
+    playlist_id = criar_playlist(sp, nome, humor)
+    resposta_playlist = adicionar_musicas_na_playlist(sp, playlist_id, recomendacoes)
+    
+    print(f"\n💡 Baseado no seu humor, {nome}, aqui está sua playlist: ")
+    print(resposta_playlist)
+    
+    print(f"\n🎧 Até logo, {nome}! Espero que essa playlist melhore seu dia! 😊")
 
-start_chat()  
+if __name__ == "__main__":
+    start_chat()
