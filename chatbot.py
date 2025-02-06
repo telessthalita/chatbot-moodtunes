@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from textblob import TextBlob
 from spotify_integration import obter_spotify_client, recomendar_musica, criar_playlist, adicionar_musicas_na_playlist
 
-<<<<<<< HEAD
+
 load_dotenv()
 
 sp = obter_spotify_client()
