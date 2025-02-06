@@ -13,16 +13,17 @@ def obter_spotify_client():
     )
     return spotipy.Spotify(auth_manager=oauth)
 
+# spotify_integration.py
 def recomendar_musica(sp, humor, nome):
     parametros = {
-        'feliz': {'q': 'mood:happy', 'limit': 5},  
-        'triste': {'q': 'mood:sad', 'limit': 5},
-        'neutro': {'q': 'mood:calm', 'limit': 5}
+        'feliz': {'q': 'mood:happy', 'limit': 5}, 
+        'triste': {'q': 'mood:happy OR genre:pop OR genre:rock', 'limit': 5},  
+        'neutro': {'q': 'mood:calm', 'limit': 5} 
     }
     
     resultados = sp.search(**parametros.get(humor, parametros['neutro']), type='track')
+
     musicas = [f"{item['name']} - {item['artists'][0]['name']}" for item in resultados['tracks']['items']]
-    
     
     if nome not in musicas_recomendadas:
         musicas_recomendadas[nome] = set()
@@ -33,6 +34,7 @@ def recomendar_musica(sp, humor, nome):
         musicas_recomendadas[nome].update(novas_musicas)
     
     return novas_musicas if novas_musicas else ["Já recomendei todas as disponíveis!"]
+
 
 def criar_playlist(sp, nome_usuario, humor):
     user_id = sp.current_user()['id']
