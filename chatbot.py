@@ -1,43 +1,64 @@
 import os
 from dotenv import load_dotenv
 from textblob import TextBlob
-from spotify_integration import obter_spotify_client, recomendar_musica, criar_playlist, adicionar_musicas_na_playlist
+import spotipy
+from spotify_integration import recomendar_musica, criar_playlist, adicionar_musicas_na_playlist, obter_spotify_client
 
-<<<<<<< HEAD
 load_dotenv()
 
-sp = obter_spotify_client()
-=======
-client_id = 'SEU_CLIENT_ID'  
-client_secret = 'SEU_CLIENT_SECRET'  
-
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))  
-
-historico = {}
 musicas_recomendadas = {}
 
-def analisar_sentimento(mensagem):
-    blob = TextBlob(mensagem)
-    sentimento = blob.sentiment.polarity  
-    if sentimento > 0.3:  
-        return 'feliz'
-    elif sentimento < -0.3: 
-        return 'triste'
-    
-    palavras_felizes = ["feliz", "animado", "empolgado", "maravilhoso", "muito bem"]
-    palavras_tristes = ["triste", "deprimido", "ansioso", "frustrado", "sofrendo", "isolado"]
+# Função para carregar o histórico de músicas recomendadas de um arquivo
+def carregar_historico():
+    if os.path.exists('historico.json'):
+        with open('historico.json', 'r') as file:
+            return json.load(file)
+    return {}
 
+# Função para salvar o histórico de músicas recomendadas em um arquivo
+def salvar_historico():
+    with open('historico.json', 'w') as file:
+        json.dump(musicas_recomendadas, file)
+
+from textblob import TextBlob
+
+def analisar_sentimento(mensagem):
+    # Mensagem em minúsculas para evitar falhas de case-sensitivity
+    mensagem = mensagem.lower()
+    
+    # Criando o objeto Blob para análise de sentimento
+    blob = TextBlob(mensagem)
+    polaridade = blob.sentiment.polarity  
+
+    # Conjunto de palavras-chave relacionadas aos sentimentos
+    palavras_felizes = ["feliz", "alegre", "contente", "animado", "maravilhoso", "incrível", "empolgado"]
+    palavras_tristes = ["triste", "deprimido", "ansioso", "preocupado", "nervoso", "frustrado", "cansado", "chateado", "isolado"]
+    palavras_neutras = ["ok", "tanto faz", "normal", "indiferente", "neutro"]
+
+    # Verificação de palavras-chave antes de usar a polaridade
     for palavra in palavras_felizes:
-        if palavra in mensagem.lower():
+        if palavra in mensagem:
             return 'feliz'
     for palavra in palavras_tristes:
-        if palavra in mensagem.lower():
+        if palavra in mensagem:
             return 'triste'
+    for palavra in palavras_neutras:
+        if palavra in mensagem:
+            return 'neutro'
+
+    # Utilizando a polaridade para decidir o humor
+    if polaridade > 0.1:
+        return 'feliz'
+    elif polaridade < -0.1:
+        return 'triste'
     
     return 'neutro'
 
 
-def start_chat():  
+def start_chat():
+    # Inicializa o cliente do Spotify
+    sp = obter_spotify_client()
+
     print("\n🎵 MoodTunes v2.0")
     nome = input("\nMoodTunes: Oi! Qual é o seu nome? ")  
     mensagem = input(f"\n{nome}, como você está se sentindo hoje? ")
@@ -52,10 +73,10 @@ def start_chat():
     print(resposta_playlist)
     
     print(f"\n🎧 Até logo, {nome}! Espero que essa playlist melhore seu dia! 😊")
+    feedback = input("Você gostou da playlist? (sim/não): ").strip().lower()
+    if feedback == 'não':
+        print("\nEntendi, vou tentar novamente!")
+        start_chat()  # Reinicia a conversa
 
-<<<<<<< HEAD
 if __name__ == "__main__":
     start_chat()
-=======
-start_chat()  
->>>>>>> 0e8c3e92416ab473f1756a4f74574aad1d884de1
